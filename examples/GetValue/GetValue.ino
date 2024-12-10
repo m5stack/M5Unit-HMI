@@ -1,82 +1,56 @@
 /*
-    Description: Use Pbhub to read the analog input value of the slave device,
-   or drive multiple sets of RGB LEDs.
-*/
+ * SPDX-FileCopyrightText: 2024 M5Stack Technology CO LTD
+ *
+ * SPDX-License-Identifier: MIT
+ */
 
-#include <M5Stack.h>
-#include <Wire.h>
-#include "MODULE_HMI.h"
+#include <M5Unified.h>
 #include <M5GFX.h>
+#include "M5ModuleHMI.h"
+#include <Wire.h>
 
-M5GFX display;
-M5Canvas canvas(&display);
-MODULE_HMI hmi_module;
+M5ModuleHMI hmi_module;
+int32_t inc_count       = 0;
+int32_t current_encoder = 0;
+bool button_a_status    = false;
+bool button_b_status    = false;
+bool button_s_status    = false;
 
-#define M5BUS_DELAY_TIME 100
+void setup()
+{
+    M5.begin();
+    M5.Display.setFont(&fonts::efontCN_12);
+    M5.Display.setTextSize(2);
 
-unsigned long end_time = 0;
-uint16_t delay_time    = 0;
-uint8_t led1_status    = 0;
-uint8_t led2_status    = 0;
-int32_t inc_count      = 0;
+    // for Core1
+    // Wire1.end();
+    // hmi_module.begin(&Wire1, HMI_ADDR, 21, 22, 100000);
 
-void setup() {
-    M5.begin(true, false, true, false);
-    M5.Power.begin();
-    display.begin();
-    canvas.setColorDepth(8);  // mono color
-    canvas.setFont(&fonts::efontCN_12);
-    canvas.createSprite(display.width(), display.height());
-    hmi_module.begin(&Wire, HMI_ADDR, 21, 22, 100000);
+    // for Core2
+    // Wire1.end();
+    // hmi_module.begin(&Wire1, HMI_ADDR, 21, 22, 100000);
 
-    end_time = millis();
+    // for CoreS3
+    Wire1.end();
+    hmi_module.begin(&Wire1, HMI_ADDR, 12, 11, 100000);
+
+    hmi_module.setLEDStatus(0, 1);
+    hmi_module.setLEDStatus(1, 1);
+
+    hmi_module.resetCounter();
 }
 
-void loop() {
-    M5.update();
-    if (M5.BtnA.wasPressed()) {
-        if (led1_status) {
-            hmi_module.setLEDStatus(0, 0);
-            led1_status = 0;
-        } else {
-            hmi_module.setLEDStatus(0, 1);
-            led1_status = 1;
-        }
-    } else if (M5.BtnB.wasPressed()) {
-        if (led2_status) {
-            hmi_module.setLEDStatus(1, 0);
-            led2_status = 0;
-        } else {
-            hmi_module.setLEDStatus(1, 1);
-            led2_status = 1;
-        }
-    }
-    if (M5.BtnC.wasReleasefor(100)) {
-        hmi_module.resetCounter();
-    }
-    if (M5.BtnC.pressedFor(1000)) {
-        while (M5.BtnC.read())
-            ;
-        inc_count = hmi_module.getIncrementValue();
-    }
+void loop()
+{
+    current_encoder = hmi_module.getEncoderValue();
+    button_s_status = hmi_module.getButtonS();
+    button_a_status = hmi_module.getButton1();
+    button_b_status = hmi_module.getButton2();
 
-    canvas.fillSprite(BLACK);
-    canvas.setTextSize(2);
-    canvas.setCursor(100, 0);
-    canvas.setTextColor(YELLOW);
-    canvas.printf("HMI Test");
-    canvas.setTextColor(ORANGE);
-    canvas.drawLine(25, 25, 310, 25);
-    canvas.setCursor(0, 30);
-    canvas.printf("Encoder value: %d", hmi_module.getEncoderValue());
-    canvas.setCursor(0, 60);
-    canvas.printf("Encoder inc value: %d", inc_count);
-    canvas.setCursor(0, 90);
-    canvas.printf("btnS:%d, btnA:%d, btnB:%d", hmi_module.getButtonS(),
-                  hmi_module.getButton1(), hmi_module.getButton2());
-    canvas.drawString("Led1", 40, 220);
-    canvas.drawString("Led2", 130, 220);
-    canvas.drawString("reset/inc", 210, 220);
+    M5.Display.fillRect(0, 0, 320, 100, BLACK);
+    M5.Display.setCursor(0, 0);
+    M5.Display.printf("Encoder value: %d\r\n", current_encoder);
+    M5.Display.printf("btnS:%d, btnA:%d, btnB:%d\r\n", button_s_status, button_a_status, button_b_status);
 
-    canvas.pushSprite(0, 0);
+    delay(100);
 }

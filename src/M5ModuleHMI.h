@@ -1,5 +1,9 @@
-#ifndef __MODULE_HMI_H
-#define __MODULE_HMI_H
+/*
+ * SPDX-FileCopyrightText: 2024 M5Stack Technology CO LTD
+ *
+ * SPDX-License-Identifier: MIT
+ */
+#pragma once
 
 #include "Arduino.h"
 #include "Wire.h"
@@ -13,19 +17,19 @@
 #define FIRMWARE_VERSION_REG 0xFE
 #define I2C_ADDRESS_REG      0xFF
 
-class MODULE_HMI {
-   private:
+class M5ModuleHMI {
+private:
     uint8_t _addr;
     TwoWire* _wire;
     uint8_t _scl;
     uint8_t _sda;
-    uint8_t _speed;
+    uint32_t _speed;
     void writeBytes(uint8_t addr, uint8_t reg, uint8_t* buffer, uint8_t length);
     void readBytes(uint8_t addr, uint8_t reg, uint8_t* buffer, uint8_t length);
 
-   public:
-    bool begin(TwoWire* wire = &Wire, uint8_t addr = HMI_ADDR, uint8_t sda = 21,
-               uint8_t scl = 22, uint32_t speed = 100000L);
+public:
+    bool begin(TwoWire* wire = &Wire, uint8_t addr = HMI_ADDR, uint8_t sda = 21, uint8_t scl = 22,
+               uint32_t speed = 100000L);
     int32_t getEncoderValue();
     int32_t getIncrementValue();
     bool getButtonS();
@@ -38,5 +42,3 @@ class MODULE_HMI {
     uint8_t getFirmwareVersion(void);
     void resetCounter(void);
 };
-
-#endif

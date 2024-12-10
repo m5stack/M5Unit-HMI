@@ -1,6 +1,6 @@
 {
-  "name": "MODULE_HMI",
-  "description": "Library for M5Stack MODULE HMI",
+  "name": "M5ModuleHMI",
+  "description": "Library for M5Stack Module HMI",
   "keywords": "M5Stack MODULE_HMI",
   "authors": {
     "name": "M5Stack",
@@ -8,9 +8,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/m5stack/M5Unit-Hbridge.git"
+    "url": "https://github.com/m5stack/M5Module-HMI.git"
   },
-  "version": "0.0.1",
+  "version": "1.0.0",
   "frameworks": "arduino",
   "platforms": "espressif32"
 }
